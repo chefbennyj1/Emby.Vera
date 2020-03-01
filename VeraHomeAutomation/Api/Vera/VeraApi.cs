@@ -71,7 +71,6 @@ namespace VeraHomeAutomation.Api.Vera
                 VeraDevice veraDeviceUi7 = deviceInfoUi7.Devices.FirstOrDefault();
                 if (veraDeviceUi7 != null)
                     return veraDeviceUi7.InternalIP;
-
             }
             catch
             {
