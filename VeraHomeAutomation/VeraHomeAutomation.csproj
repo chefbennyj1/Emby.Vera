@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+<PropertyGroup> <TargetFrameworks>netstandard2.0;</TargetFrameworks> <AssemblyVersion>1.0.2.6</AssemblyVersion> <FileVersion>1.0.2.6</FileVersion> <Version>1.0.2.6</Version> </PropertyGroup>
+
+<ItemGroup>
+  <EmbeddedResource Include="Configuration\mainPluginConfigurationPage.js" />
+  <EmbeddedResource Include="thumb.png" />
+  <EmbeddedResource Include="Configuration\MainPluginConfigurationPage.html" />
+</ItemGroup>
+
+<ItemGroup> <PackageReference Include="mediabrowser.server.core" Version="4.2.0.40" /> </ItemGroup>
+
+</Project>
