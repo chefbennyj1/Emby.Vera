@@ -1,59 +1,96 @@
-﻿
-
-<div data-role="page" style="align-items: center; margin: auto; padding-bottom: 3em;" class="type-interior pluginConfigurationPage MainPluginConfigurationPage" data-require="emby-button,emby-input,emby-select,emby-checkbox" data-controller="__plugin/MainPluginConfigurationPageJS">
+﻿<div data-role="page" style="align-items: center; margin: auto; padding-bottom: 3em;" class="type-interior pluginConfigurationPage MainPluginConfigurationPage" data-require="emby-button,emby-input,emby-select,emby-checkbox" data-controller="__plugin/MainPluginConfigurationPageJS">
     <div class="content-primary">
-        <form style="padding-top: 3em;">
-
-            <div class="sectionTitleContainer flex" style="padding-left: 10px;">
-                <h2 class="sectionTitle">Vera Home Automation Integration</h2>
-                <a is="emby-linkbutton" id="dashboardLink" class="raised button-alt headerHelpButton emby-button" target="_blank">Vera</a>
-            </div>
-            
-            <div id="deviceTypes" style="padding-left: 10px; padding-bottom: 20px;">
-
-                <h2 class="sectionTitle" style="margin-bottom:0 !important">Vera</h2>
-                <div style="display: flex; align-items: center;">
-                    <!--Vera Devices-->
-                    <div style="flex-grow: 1;" class="selectContainer">
-                        <label class="selectLabel" for="veraDeviceIps">Network Devices:</label>
-                        <select is="emby-select" name="veraDeviceIps" id="veraDeviceIps" label="Vera Network Devices:" data-mini="true" class="emby-select-withcolor emby-select"></select>
-                        <div class="selectArrowContainer">
-                            <div style="visibility: hidden;">0</div><i class="selectArrow md-icon"></i>
+        <div class="verticalSection verticalSection">
+            <div class="sectionTitleContainer sectionTitleContainer-cards align-items-center">
+                <div class="sectionTitleContainer sectionTitleContainer-cards align-items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="55" height="55" viewBox="0 0 25 25" style="fill: lightblue;">
+                        <path d="M16.3,10.58C13.14,10.58 10.6,13.13 10.6,16.28C10.6,19.43 13.15,22 16.3,22C19.45,22 22,19.43 22,16.28C22,13.13 19.45,10.58 16.3,10.58M18,19.08H13.19L15.81,15H13.31L14.4,13.23H19.18L16.63,17.28H19.18L18,19.08M16.3,3.93V2C8.41,2 2,8.42 2,16.31H3.92C3.94,9.46 9.5,3.93 16.3,3.93M16.3,7.74V5.82C10.5,5.82 5.81,10.53 5.81,16.31H7.73C7.75,11.58 11.59,7.74 16.3,7.74"></path>
+                    </svg>
+                    <h2 class="sectionTitle sectionTitle-cards" style="padding-bottom: 1em;">Vera Home Automation</h2>
+                    <a is="emby-linkbutton" id="dashboardLink" class="raised button-alt headerHelpButton emby-button" style="margin-bottom:2em" target="_blank">Vera</a>
+                    <hr />
+                    <div id="deviceTypes">
+                        <div style="padding: 2em;">
+                            <div class="detailSectionHeader" style="padding-bottom: 2em">
+                                <h2 style="margin: .6em 0; vertical-align: middle; display: inline-block;">Vera</h2>
+                                <div style="display: flex; align-items: center;">
+                                    <!--Vera Devices-->
+                                    <div style="flex-grow: 1;" class="selectContainer">
+                                        <label class="selectLabel" for="veraDeviceIps">Network Devices:</label>
+                                        <select is="emby-select" name="veraDeviceIps" id="veraDeviceIps" label="Vera Network Devices:" data-mini="true" class="emby-select-withcolor emby-select"></select>
+                                        <div class="selectArrowContainer">
+                                            <div style="visibility: hidden;">0</div><i class="selectArrow md-icon"></i>
+                                        </div>
+                                        <div class="fieldDescription">
+                                            Choose a Vera Home Automation device from the list to begin adding functionality with Emby.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="fieldDescription">
-                            Choose a Vera Home Automation device from the list to begin adding functionality with Emby.
+
+                        <hr />
+
+                        <div style="padding: 2em;">
+                            <div class="detailSectionHeader" style="padding-bottom: 2em">
+                                <h2 style="margin: .6em 0; vertical-align: middle; display: inline-block;">Emby</h2>
+                                <div style="display: flex; align-items: center;">
+                                    <!-- Emby Devices List -->
+                                    <div style="flex-grow: 1;" class="selectContainer">
+                                        <label class="selectLabel" for="deviceName">Network Devices:</label>
+                                        <select is="emby-select" name="deviceName" id="deviceName" label="Emby Network Devices:" data-mini="true" class="emby-select-withcolor emby-select"></select>
+                                        <div class="selectArrowContainer">
+                                            <div style="visibility: hidden;">0</div><i class="selectArrow md-icon"></i>
+                                        </div>
+                                        <div class="fieldDescription">
+                                            Choose an Emby device from the list to begin adding functionality with Vera Home Automation.
+                                        </div>
+                                    </div>
+                                    <!-- Add Button -->
+                                    <button id="addButton" is="paper-icon-button-light" type="button" data-theme="b" class="emby-input-iconbutton paper-icon-button-light" style="margin-left: 1em;bottom: 3em;">
+                                        <i class="md-icon">add</i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr />
+                        <div class="detailSectionHeader" style="padding-bottom: 2em">
+                            <h2 style="margin: .6em 0; vertical-align: middle; display: inline-block;">Saved Profiles</h2>
+
+                            <div class="paperList" style="padding: 1em;">
+                                <table class="tblProfileResults table detailTable" style="width: 100%; margin-top: 3em; padding-bottom: 3em;">
+                                    <thead>
+                                        <tr style="text-align: left;">
+                                            <th class="detailTableHeaderCell" data-priority="1" style="width: 5%"></th>
+                                            <th class="detailTableHeaderCell" data-priority="2" style="width: 35%">Edit</th>
+                                            <th class="detailTableHeaderCell" data-priority="3" style="width: 25%">Device Name</th>
+                                            <th class="detailTableHeaderCell" data-priority="3" style="width: 25%">Application Name</th>
+                                            <th class="detailTableHeaderCell" data-priority="4" style="width: 10%">Remove</th>
+                                            <th class="detailTableHeaderCell" data-priority="5"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="clientProfiles"></tbody>
+                                </table>
+
+
+
+
+
+
+                                
+                                <div class="fieldDescription">
+                                    Saved Profiles that connect Emby Events to Vera Home Automation.
+                                </div>
+                            </div>
+                        </div>
+                        <div>
                         </div>
                     </div>
-                </div>
 
-                <h2 class="sectionTitle" style="margin-bottom:0 !important">Emby</h2>
-                <div style="display: flex; align-items: center; padding-bottom: 6%">
-                    <!-- Emby Devices List -->
-                    <div style="flex-grow: 1;" class="selectContainer">
-                        <label class="selectLabel" for="deviceName">Network Devices:</label>
-                        <select is="emby-select" name="deviceName" id="deviceName" label="Emby Network Devices:" data-mini="true" class="emby-select-withcolor emby-select"></select>
-                        <div class="selectArrowContainer">
-                            <div style="visibility: hidden;">0</div><i class="selectArrow md-icon"></i>
-                        </div>
-                        <div class="fieldDescription">
-                            Choose an Emby device from the list to begin adding functionality with Vera Home Automation.
-                        </div>
-                    </div>
-                    <!-- Add Button -->
-                    <button id="addButton" is="paper-icon-button-light" type="button" data-theme="b" class="emby-input-iconbutton paper-icon-button-light" style="margin-left: 1em;bottom: 3em;">
-                        <i class="md-icon">add</i>
-                    </button>
-                </div>
-
-
-                <h2 class="sectionTitle">Saved Profiles</h2>
-                <div data-inset='true' data-split-icon='delete' id='clientProfiles' class="itemsContainer vertical-wrap"></div>
-                <div class="fieldDescription">
-                    Saved Profiles that connect Emby Events to Vera Home Automation.
                 </div>
             </div>
-
-        </form>
+        </div>
     </div>
 </div>
 

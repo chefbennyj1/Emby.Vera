@@ -1,184 +1,166 @@
 ﻿
 define(["loading", "dialogHelper", "emby-select", "emby-input"],
-    function(loading, dialogHelper) {
+    function (loading, dialogHelper) {
 
         var pluginId = "df04d306-8cbb-49d5-9107-20581aacf86f";
+         
+        function getProfileTableHtml(device, svg) {
+            var html = ''; 
+            html += '<tr class="detailTableBodyRow detailTableBodyRow-shaded" data-name="' +
+                device.Name +
+                '" data-id="' +
+                device.Id +
+                '" data-app="' +
+                device.AppName +
+                '">';
+            html +=
+                '<td data-title="Icon" class="detailTableBodyCell fileCell"><svg style="width:24px;height:24px" viewBox="0 0 24 24"><path fill="rgba(0,0,0,0.3)" d="' +
+                svg +
+                '" /></svg></td>';
+            html +=
+                '<td data-title="Edit" class="detailTableBodyCell fileCell"><button class="clientProfile emby-button"><svg style="width:24px;height:24px" viewBox="0 0 24 24"><path fill="rgba(0,0,0,0.3)" d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" /></svg></button></td>';
+            html += '<td data-title="Name" class="detailTableBodyCell fileCell-shaded">' +
+                device.Name +
+                '</td>';
+            html += '<td data-title="App" class="detailTableBodyCell fileCell-shaded">' +
+                device.AppName +
+                '</td>';
+            html += '<td class="detailTableBodyCell fileCell">';
+            html += '<button class="fab btnDeleteProfile emby-button"><i class="md-icon">clear</i></button></td>';
+            html += '<td class="detailTableBodyCell" style="whitespace:no-wrap;"></td>';
+            html += '</tr>';
 
-
-        function getClientHtml(device) {
-
-            var html = "";
-            html += '<div data-name="' + device.Name + '" data-id="' + device.Id + '" data-app="' + device.AppName + '" class="clientButtonContainer cardBox visualCardBox clientProfile" style="max-width:322px; width:322px">';
-            html += '<div class="cardScalable">';
-            html += '<i class="md-icon btnDeleteProfile fab" data-index="0" style="position:absolute; right:2px; margin:1em">close</i>';
-            html += '<img style="width: 6em;margin:1em;" src="' + deviceNameImage(device.Name, device.AppName) + '" />';
-            html += '<h3 style="margin: 1em;"class="">' + device.Name + ' - ' + device.AppName + '</h3>';
-            
-            html += '</div>';
-            html += '</div>';
-
-            return html;
-        };
-
-        function deviceNameImage(deviceName, deviceAppName) {
-
-            if (deviceName.toLowerCase().indexOf("xbox") > -1)
-                return "https://github.com/MediaBrowser/Emby.Resources/raw/master/images/devices/xboxone.png";
-
-            if (deviceName.toLowerCase().indexOf("roku") > -1)
-                return "https://github.com/MediaBrowser/Emby.Resources/raw/master/images/devices/roku.png";
-
-            if (deviceName.toLowerCase().indexOf("chrome") > -1)
-                return "https://github.com/MediaBrowser/Emby.Resources/raw/master/images/devices/chrome.png";
-
-            if (deviceName.toLowerCase().indexOf("firefox") > -1)
-                return "https://github.com/MediaBrowser/Emby.Resources/raw/master/images/devices/firefox.png";
-
-            if (deviceAppName.toLowerCase().indexOf("android") > -1)
-                return "https://github.com/MediaBrowser/Emby.Resources/raw/master/images/devices/android.png";
-
-            if (deviceName.toLowerCase().indexOf("edge") > -1)
-                return "https://github.com/MediaBrowser/Emby.Resources/raw/master/images/devices/edge.png";
-
-            if (deviceName.toLowerCase().indexOf("amazon") > -1)
-                return "https://github.com/MediaBrowser/Emby.Resources/raw/master/images/devices/amazon.png";
-
-            if (deviceName.toLowerCase().indexOf("apple") > -1)
-                return "https://github.com/MediaBrowser/Emby.Resources/raw/master/images/devices/appletev.png";
-
-            if (deviceName.toLowerCase().indexOf("windows") > -1)
-                return "https://github.com/MediaBrowser/Emby.Resources/raw/master/images/devices/windowsrt.png";
-
-            if (deviceName.toLowerCase().indexOf("dlna") > -1)
-                return "https://github.com/MediaBrowser/Emby.Resources/raw/master/images/devices/dlna.png";
-
-            if (deviceName.toLowerCase().indexOf("chromecast") > -1)
-                return "https://github.com/MediaBrowser/Emby.Resources/raw/master/images/devices/chromecast.png";
-
-
-            return "https://github.com/MediaBrowser/Emby.Resources/blob/master/images/Logos/logoicon.png";
+            return html; 
         }
-
+         
         function loadPageData(view, config) {
 
-            //setOptionalVeraDeviceIpEnabledStyles(view);
+            ApiClient.getJSON(ApiClient.getUrl("VeraModelInfo")).then(
+                (modelInfo) => {
+                    view.querySelector('#dashboardLink').href = "http://" + modelInfo.InternalIp; 
+                });
+        
+            var table = view.querySelector('.clientProfiles');
+            table.innerHTML = "";
 
-            //var activeMessage = view.querySelector('#activeMessage');
-            
-            return new Promise(() => {
-               
-                ApiClient.getJSON(ApiClient.getUrl("VeraModelInfo")).then(
-                    (modelInfo) => {
-                        //var html = '';
-                        //html += "Connected to "; 
-                        //html += modelInfo.Name;
-                        //html += ' at ';
-                        //html += modelInfo.InternalIp;
-                        //activeMessage.style.opacity = 0;
-                        //activeMessage.innerHTML = html;
+            config.SavedDeviceProfiles.forEach((profile) => {
+                ApiClient.getJSON(ApiClient.getUrl("EmbyDeviceSvg?AppName=" + profile.AppName + "&DeviceName=" + profile.Name)).then(
+                    result => {
+                        table.innerHTML += getProfileTableHtml(profile, result.svg);
 
-                        view.querySelector('#dashboardLink').href = "http://" + modelInfo.InternalIp;
+                        view.querySelectorAll('.clientProfile').forEach(profileButton => {
+                            profileButton.addEventListener('click',
+                                (e) => {
+                                    e.preventDefault();
 
-                        //try {
-                        //    activeMessage.animate(
-                        //        {
-                        //            transform: ['translateX(-200px)', 'translateX(0)'],
-                        //            opacity: [0, 1]
-                        //        },
-                        //        {
-                        //            duration: 300,
-                        //            fill: 'forwards',
-                        //            easing: 'cubic-bezier(0.42, 0, 0.58, 1)',
-                        //            delay: 525
-                        //        });
-                        //} catch (err) {
-                        //    activeMessage.style.opacity = 1;
-                        //}
+                                    Dashboard.showLoadingMsg();
 
-                       
-                        if (config.SavedDeviceProfiles) {
-                            config.SavedDeviceProfiles.forEach(
-                                (device) => {
-                                    view.querySelector('#clientProfiles').innerHTML += (getClientHtml(device));
+                                    var ele = e.target.closest('tr');
+                                    var profileId = ele.dataset.id;
+                                    var profileName = ele.dataset.name;
+                                    var profileApp = ele.dataset.app;
+                                    openDialog(profileName, profileApp, profileId, view);
                                 });
-                        }
+                        });
 
-                    //},
-                    //() => {
-
-                    //    var html = '';
-                    //    html += '<span style="color: red" >';
-                    //    html += '<i class="md-icon">';
-                    //    html += 'error';
-                    //    html += '</i>';
-                    //    html += '<span>';
-                    //    html += ' No Vera Home Automation Device Detected!';
-
-                    //    activeMessage.innerHTML = html;
-                    //    activeMessage.style.color = 'red';
-                    //    activeMessage.style.opacity = 1;
-                    //    activeMessage.style.display = 'block';
-
+                        var delButtons = view.querySelectorAll('.btnDeleteProfile');
+                        delButtons.forEach((button) => {
+                            button.addEventListener('click',
+                                (e) => {
+                                    removeClientProfile(e, view);
+                                });
+                        });
                     });
+            });  
 
-                var veraDeviceIps = view.querySelector('#veraDeviceIps');
-                if (veraDeviceIps.length > 0) {
-                    removeOptionsFromSelect(veraDeviceIps);
-                }
+            var veraDeviceIps = view.querySelector('#veraDeviceIps');
+            if (veraDeviceIps.length > 0) {
+                removeOptionsFromSelect(veraDeviceIps);
+            }
 
-                ApiClient.getJSON(ApiClient.getUrl("VeraDeviceList")).then(
-                    (veraDevices) => {
-                        veraDevices.forEach(
-                            (device) => {
-                                ApiClient.getJSON(ApiClient.getUrl("GetName?IpAddress=" + device.InternalIP)).then(
-                                    (result) => {
-                                        veraDeviceIps.innerHTML += ('<option value="' +
-                                            device.InternalIP +
-                                            '">' +
-                                            device.InternalIP +
-                                            ' - ' +
-                                            result.Name +
-                                            '</option>');
+            ApiClient.getJSON(ApiClient.getUrl("VeraDeviceList")).then(
+                (veraDevices) => {
+                    veraDevices.forEach(
+                        (device) => {
+                            ApiClient.getJSON(ApiClient.getUrl("GetName?IpAddress=" + device.InternalIP)).then(
+                                (result) => {
+                                    veraDeviceIps.innerHTML += ('<option value="' +
+                                        device.InternalIP +
+                                        '">' +
+                                        device.InternalIP +
+                                        ' - ' +
+                                        result.Name +
+                                        '</option>');
+                                });
+                        });
+
+                });
+
+            if (config.SaveVeraDeviceIp) {
+                veraDeviceIps.value = config.SaveVeraDeviceIp;
+            } 
+
+            var deviceNameSelect = view.querySelector('#deviceName');
+            if (deviceNameSelect.length > 0) {
+                removeOptionsFromSelect('#deviceName');
+            }
+
+            ApiClient.getJSON(ApiClient.getUrl("Devices")).then(
+                (devices) => {
+                    devices.Items.forEach(
+                        (device) => {
+                            deviceNameSelect.innerHTML += ('<option value="' + device.Name + '" data-id="' + device.Id + '" data-app="' + device.AppName + '" data-name="' + device.Name + '">' + device.Name + ' - ' + device.AppName + '</option>');
+                        });
+                }); 
+        }
+
+        function removeClientProfile(e, view) {
+            var name = e.target.closest('tr').dataset.name;
+            var appName = e.target.closest('tr').dataset.appName;
+
+            ApiClient.getPluginConfiguration(pluginId).then((config) => {
+                var profiles = config.SavedDeviceProfiles.filter(p => p.Name !== name && p.AppName !== appName);
+                config.SavedDeviceProfiles = profiles;
+                ApiClient.updatePluginConfiguration(pluginId, config).then(
+                    (result) => {
+                        var table = view.querySelector('.clientProfiles');
+                        table.innerHTML = "";
+                        config.SavedDeviceProfiles.forEach((profile) => {
+                            ApiClient.getJSON(ApiClient.getUrl("EmbyDeviceSvg?AppName=" +
+                                profile.AppName +
+                                "&DeviceName=" +
+                                profile.Name)).then(
+                                result => {
+                                    table.innerHTML += getProfileTableHtml(profile, result.svg);
+
+                                    view.querySelectorAll('.clientProfile').forEach(profileButton => {
+                                        profileButton.addEventListener('click',
+                                            (e) => {
+                                                e.preventDefault();
+
+                                                Dashboard.showLoadingMsg();
+
+                                                var ele = e.target.closest('tr');
+                                                var profileId = ele.dataset.id;
+                                                var profileName = ele.dataset.name;
+                                                var profileApp = ele.dataset.app;
+                                                openDialog(profileName, profileApp, profileId, view);
+                                            });
                                     });
-                            });
 
+                                    var delButtons = view.querySelectorAll('.btnDeleteProfile');
+                                    delButtons.forEach((button) => {
+                                        button.addEventListener('click',
+                                            (e) => {
+                                                removeClientProfile(e, view);
+                                            });
+                                    });
+                                });
+                        });
                     });
-                if (config.SaveVeraDeviceIp) {
-                    veraDeviceIps.value = config.SaveVeraDeviceIp;
-                }
-
-
-                var deviceNameSelect = view.querySelector('#deviceName');
-                if (deviceNameSelect.length > 0) {
-                    removeOptionsFromSelect('#deviceName');
-                }
-
-                ApiClient.getJSON(ApiClient.getUrl("EmbyDeviceList")).then(
-                    (devices) => {
-                        devices.forEach(
-                            (device) => {
-                                deviceNameSelect.innerHTML +=
-                                ('<option value="' +
-                                    device.Name +
-                                    '" data-app="' +
-                                    device.AppName +
-                                    '" data-name="' +
-                                    device.Name +
-                                    '">' +
-                                    device.Name +
-                                    ' - ' +
-                                    device.AppName +
-                                    '</option>');
-                            });
-                    });
-
-
-                
-
             });
         }
 
-       
         function removeOptionsFromSelect(selectbox) {
             if (selectbox.options.length > 0) {
                 for (var i = selectbox.options.length - 1; i >= 0; i--) {
@@ -197,7 +179,6 @@ define(["loading", "dialogHelper", "emby-select", "emby-input"],
 
         function openDialog(profileName, profileApp, profileId, view) {
 
-            
             var dlg = dialogHelper.createDialog({
                 size: "medium-tall",
                 removeOnClose: !1,
@@ -207,20 +188,19 @@ define(["loading", "dialogHelper", "emby-select", "emby-input"],
             dlg.classList.add("formDialog");
             dlg.classList.add("ui-body-a");
             dlg.classList.add("background-theme-a");
-            dlg.style.maxHeight = "46em";
+            dlg.style.maxHeight = "85%";
             dlg.style.maxWidth = "40%";
-            
+
             var html = '';
 
             html += '<div class="formDialogHeader" style="display:flex">';
             html += '<button is="paper-icon-button-light" class="btnCloseDialog autoSize paper-icon-button-light" tabindex="-1"><i class="md-icon"></i></button><h3 class="formDialogHeaderTitle">Authorize  ' + profileApp + ' on ' + profileName + ' to trigger Vera Scenes</h3>';
-            html +='</div>';
+            html += '</div>';
 
             html += '<div class="formDialogContent">';
-            html += '<div id="ClientSetup" class="dialogContentInner" style="flex-grow:1; max-height: 42em;">';
-         
-            html += '<img id="clientImage" style="pointer-events: none;opacity: 0.26;position: fixed;left: 50%;top: 50%;width: 20%;transform: translate(-50%, -50%);" />';
+            html += '<div id="ClientSetup" class="dialogContentInner" style="flex-grow:1;">';
               
+
             html += '<div id="mediaTypeMenuContainer">';
             html += '<div id="mediaTypeMenu" style="padding-left: 6%; display: inline-flex; align-items: center; width: 100%; height: 10vh;">';
 
@@ -247,7 +227,7 @@ define(["loading", "dialogHelper", "emby-select", "emby-input"],
             html += '<i class="md-icon">how_to_reg</i>';
             html += '</button>';
             html += '</div>';
-                                                                                                                                                                                                                                                
+
             html += '<div class="buttonContainer" style="margin: auto; width: 50%;">';
             html += '<button title="Live TV" id="showLiveTvList" is="emby-button" class="fab emby-input-iconbutton paper-icon-button-light emby-button">';
             html += '<i class="md-icon">live_tv</i>';
@@ -266,28 +246,28 @@ define(["loading", "dialogHelper", "emby-select", "emby-input"],
             html += '</div>';
 
 
-            html += '<div id="musicSceneList" class="scrollY" style="margin: 2em;overflow-y: auto;max-height: 20em; display: none">';
+            html += '<div id="musicSceneList" class="scrollY" style="margin: 2em;overflow-y: auto; display: none">';
 
             html += '<h1 style="margin: 0">';
             html += '<i style="padding-bottom:1%" class="md-icon">headset</i> Music</h1>';
             html += '<br />';
-            
+
             html += '<div class="selectContainer" style="margin:2em;">';
             html += '<label class="selectLabel" for="veraScenePlaybackStarted">Playback Started Scene:</label>';
             html += '<select is="emby-select" name="veraScenePlaybackStarted" id="MusicPlaybackStarted"></select>';
             html += '</div>';
-            
+
             html += '<div class="selectContainer" style="margin:2em;">';
             html += '<label class="selectLabel" for="veraScenePlaybackStopped">Playback Stopped Scene:</label>';
             html += '<select is="emby-select" name="veraScenePlaybackStopped" id="MusicPlaybackStopped"></select>';
             html += '</div>';
-           
+
             html += '<div class="selectContainer" style="margin:2em;">';
             html += '<label class="selectLabel" for="veraScenePlaybackPaused">Playback Paused Scene:</label>';
             html += '<select is="emby-select" name="veraScenePlaybackPaused" id="MusicPlaybackPaused"></select>';
             html += '</div>';
 
-           
+
             html += '<div class="selectContainer" style="margin:2em;">';
             html += '<label class="selectLabel" for="veraScenePlaybackUnpaused">Playback Unpaused Scene:</label>';
             html += '<select is="emby-select" name="veraScenePlaybackUnpaused" id="MusicPlaybackUnPaused"></select>';
@@ -296,30 +276,30 @@ define(["loading", "dialogHelper", "emby-select", "emby-input"],
             html += '</div>';
 
 
-            html += '<div id="movieSceneList" class="scrollY" style="margin: 2em;overflow-y: auto;max-height: 20em;">';
+            html += '<div id="movieSceneList" class="scrollY" style="margin: 2em;overflow-y: auto;">';
             html += '<h1 style="margin: 0"> <i style="padding-bottom:1%" class="md-icon">movies</i> Movies</h1>';
             html += '<br />';
 
-           
+
             html += '<div class="selectContainer" style="margin:2em;">';
             html += '<label class="selectLabel" for="veraScenePlaybackStarted"> Playback Started Scene:</label>';
             html += '<select is="emby-select" name="veraScenePlaybackStarted" id="MoviesPlaybackStarted"></select>';
             html += '</div>';
 
-      
-           
+
+
             html += '<div class="selectContainer" style="margin:2em;">';
             html += '<label class="selectLabel" for="veraScenePlaybackStopped">Playback Stopped Scene:</label>';
             html += '<select is="emby-select" name="veraScenePlaybackStopped" id="MoviesPlaybackStopped"></select>';
             html += '</div>';
 
-           
+
             html += '<div class="selectContainer" style="margin:2em;">';
             html += '<label class="selectLabel" for="veraScenePlaybackPaused"> Playback Paused Scene:</label>';
             html += '<select is="emby-select" name="veraScenePlaybackPaused" id="MoviesPlaybackPaused"></select>';
             html += '</div>';
-            
-        
+
+
             html += '<div class="selectContainer" style="margin:2em;">';
             html += '<label class="selectLabel" for="veraScenePlaybackUnpaused">Playback Unpaused Scene:</label>';
             html += '<select is="emby-select" name="veraScenePlaybackUnpaused" id="MoviesPlaybackUnPaused"></select>';
@@ -328,30 +308,30 @@ define(["loading", "dialogHelper", "emby-select", "emby-input"],
             html += '</div>';
 
 
-            html += '<div id="liveTvSceneList" class="scrollY" style="margin:2em;overflow-y: auto;max-height: 20em;display: none">';
+            html += '<div id="liveTvSceneList" class="scrollY" style="margin:2em;overflow-y: auto;display: none">';
 
             html += '<h1 id="tuner" style="margin: 0"> No Tuners available!</h1>';
             html += '<br />';
 
-           
+
             html += '<div class="selectContainer" style="margin:2em;">';
             html += '<label class="selectLabel" for="veraScenePlaybackStarted">Playback Started Scene:</label>';
             html += '<select is="emby-select" name="veraScenePlaybackStarted" id="LiveTvPlaybackStarted" disabled></select>';
             html += '</div>';
 
-           
+
             html += '<div class="selectContainer" style="margin:2em;">';
             html += '<label class="selectLabel" for="veraScenePlaybackStopped">Playback Stopped Scene:</label>';
             html += '<select is="emby-select" name="veraScenePlaybackStopped" id="LiveTvPlaybackStopped" disabled></select>';
             html += '</div>';
 
-            
+
             html += '<div class="selectContainer" style="margin:2em;">';
             html += '<label class="selectLabel" for="veraScenePlaybackPaused">Playback Paused Scene:</label>';
             html += '<select is="emby-select" name="veraScenePlaybackPaused" id="LiveTvPlaybackPaused" disabled></select>';
             html += '</div>';
-             
-           
+
+
             html += '<div class="selectContainer" style="margin:2em;">';
             html += '<label class="selectLabel" for="veraScenePlaybackUnpaused">Playback Unpaused Scene:</label>';
             html += '<select is="emby-select" name="veraScenePlaybackUnpaused" id="LiveTvPlaybackUnPaused" disabled></select>';
@@ -359,29 +339,29 @@ define(["loading", "dialogHelper", "emby-select", "emby-input"],
 
             html += '</div>';
 
-            html += '<div id="tvSceneList" class="scrollY" style="margin:2em;overflow-y: auto;max-height: 20em;display: none">';
+            html += '<div id="tvSceneList" class="scrollY" style="margin:2em;overflow-y: auto;display: none">';
             html += '<h1 style="margin: 0"><i style="padding-bottom:1%" class="md-icon">tv</i> TV Series</h1>';
             html += '<br />';
 
-            
+
             html += '<div class="selectContainer" style="margin:2em;">';
             html += '<label class="selectLabel" for="veraScenePlaybackStarted">Playback Started Scene:</label>';
             html += '<select is="emby-select" name="veraScenePlaybackStarted" id="SeriesPlaybackStarted"></select>';
             html += '</div>';
 
-           
+
             html += '<div class="selectContainer" style="margin:2em;">';
             html += '<label class="selectLabel" for="veraScenePlaybackStopped">Playback Stopped Scene:</label>';
             html += '<select is="emby-select" name="veraScenePlaybackStopped" id="SeriesPlaybackStopped"></select>';
             html += '</div>';
 
-            
+
             html += '<div class="selectContainer" style="margin:2em;">';
             html += '<label class="selectLabel" for="veraScenePlaybackPaused">Playback Paused Scene:</label>';
             html += '<select is="emby-select" name="veraScenePlaybackPaused" id="SeriesPlaybackPaused"></select>';
             html += '</div>';
-             
-            
+
+
             html += '<div class="selectContainer" style="margin:2em;">';
             html += '<label class="selectLabel" for="veraScenePlaybackUnpaused">Playback Unpaused Scene:</label>';
             html += '<select is="emby-select" name="veraScenePlaybackUnpaused" id="SeriesPlaybackUnPaused"></select>';
@@ -389,17 +369,17 @@ define(["loading", "dialogHelper", "emby-select", "emby-input"],
 
             html += '</div>';
 
-            html += '<div id="sessionSceneList" class="scrollY" style="margin:2em;overflow-y: auto;max-height: 20em;display: none">';
+            html += '<div id="sessionSceneList" class="scrollY" style="margin:2em;overflow-y: auto;display: none">';
             html += '<h1 style="margin: 0" > <i style="padding-bottom:1%" class="md-icon">how_to_reg</i> Sessions</h1>';
             html += '<br />';
 
-            
+
             html += '<div class="selectContainer" style="margin:2em;">';
             html += '<label class="selectLabel" for="veraSceneSessionStarted">Session Started Scene:</label>';
             html += '<select is="emby-select" name="veraSceneSessionStarted" id="SessionStarted"></select>';
             html += '</div>';
-              
-            
+
+
             html += '<div class="selectContainer" style="margin:2em;">';
             html += '<label class="selectLabel" for="veraSceneSessionEnded">Session Ended Scene:</label>';
             html += '<select is="emby-select" name="veraSceneSessionEnded" id="SessionEnded"></select>';
@@ -408,15 +388,15 @@ define(["loading", "dialogHelper", "emby-select", "emby-input"],
             html += '</div>';
 
 
-            html += '<div id="Schedule" class="scrollY" style="margin:2em;overflow-y: auto;max-height: 20em;display: none">';
+            html += '<div id="Schedule" class="scrollY" style="margin:2em;overflow-y: auto;display: none">';
             html += '<h1 style="margin: 0"><i style="padding-bottom:1%" class="md-icon">schedule</i> Schedule</h1>';
             html += '<br />';
-               
+
             html += '<div id="ScheduleTimeInput" style="margin:2em;">';
             html += '<input is="emby-input" id="ScheduleTime" type="time" />';
             html += '<div class="fieldDescription">Allow devices to only trigger scenes after a scheduled time. Scenes will run until 4:00 AM.<br />Leave the time empty to run scenes at any time of day.</div>';
             html += '</div>';
-             
+
             html += '</div>';
 
             html += '<div class="formDialogFooter" >';
@@ -425,18 +405,12 @@ define(["loading", "dialogHelper", "emby-select", "emby-input"],
 
             html += '</div>';
             html += '</div>';
-           
-          
-             
-           
+
+
 
             dlg.innerHTML = html;
-             
 
-            var clientImage = dlg.querySelector('#clientImage');
-            clientImage.src = deviceNameImage(profileName, profileApp);
-            clientImage.style.opacity = 0.26;
-
+                
             var moviePlaybackStartedSelect = dlg.querySelector('#MoviesPlaybackStarted');
             var moviePlaybackStoppedSelect = dlg.querySelector('#MoviesPlaybackStopped');
             var moviePlaybackPausedSelect = dlg.querySelector('#MoviesPlaybackPaused');
@@ -473,13 +447,13 @@ define(["loading", "dialogHelper", "emby-select", "emby-input"],
                         dlg.querySelector('#LiveTvPlaybackUnPaused').disabled = false;
                     }
                 });
-           
+
             // z-wave engine could be reloading if the user just created a new scene or removed one -  may have to wait!          
-            
+
             var statusInterval = setInterval(() => {
                 ApiClient.getJSON(ApiClient.getUrl("VeraAlive")).then((zwaveEngineLoaded) => {
                     if (zwaveEngineLoaded === true) {
-                        clearInterval(statusInterval);    
+                        clearInterval(statusInterval);
                     }
                 });
             }, 10);
@@ -718,7 +692,9 @@ define(["loading", "dialogHelper", "emby-select", "emby-input"],
                         config.DeviceConfiguration = deviceConfig;
 
                         ApiClient.updatePluginConfiguration(pluginId, config)
-                            .then(function (result) { });
+                            .then(function (result) {
+
+                            });
 
                     });
 
@@ -877,9 +853,7 @@ define(["loading", "dialogHelper", "emby-select", "emby-input"],
                                 ? sessionEndedSelect.selectedIndex
                                 : 0].value,
 
-                            SceneSchedule: sceneScheduleInput.value,
-
-
+                            SceneSchedule: sceneScheduleInput.value
                         };
 
                         deviceProfiles.push(newDeviceSetup);
@@ -930,7 +904,64 @@ define(["loading", "dialogHelper", "emby-select", "emby-input"],
                         config.DeviceConfiguration = { Name: null, Id: null, AppName: null };
 
                         ApiClient.updatePluginConfiguration(pluginId, config).then(function (result) {
+                            var table = view.querySelector('.clientProfiles');
+                            table.innerHTML = "";
+                            config.SavedDeviceProfiles.forEach(
+                                (device) => {
+                                    getProfileTableHtml(device).then(html => {
+                                        view.querySelector('.clientProfiles').innerHTML += html;
+
+                                        view.querySelectorAll('.btnDeleteProfile').forEach(delButton => {
+                                            delButton.addEventListener('click',
+                                                (e) => {
+                                                    e.preventDefault();
+                                                    // the device name the user wants to remove from configuration
+                                                    var name = e.target.closest('tr').dataset.name;
+                                                    var appName = e.target.closest('tr').dataset.appName;
+                                                    // Our list of devices to write to the Configuration
+                                                    var devices = [];
+                                                    // Our list of devices that already exist - with the exception of the device which was just removed from the list
+                                                    ApiClient.getPluginConfiguration(pluginId).then((config) => {
+                                                        config.SavedDeviceProfiles.forEach((c) => {
+                                                            if (c.Name !== name && c.AppName !== appName) {
+                                                                devices.push(c);
+                                                            }
+                                                        });
+                                                        var table = view.querySelector('.clientProfiles');
+                                                        table.innerHTML = "";
+                                                        config.SavedDeviceProfiles.forEach(deviceProfile => {
+                                                            table.innerHTML += (getProfileTableHtml(deviceProfile));
+                                                        });
+                                                        config.SavedDeviceProfiles = devices;
+                                                        ApiClient.updatePluginConfiguration(pluginId, config).then(
+                                                            (result) => {
+                                                                Dashboard.hideLoadingMsg();
+                                                                Dashboard.processPluginConfigurationUpdateResult(result);
+                                                            });
+                                                    });
+
+                                                });
+                                        });
+
+                                        view.querySelectorAll('.clientProfile').forEach(profileButton => {
+                                            profileButton.addEventListener('click',
+                                                (e) => {
+                                                    e.preventDefault();
+
+                                                    Dashboard.showLoadingMsg();
+
+                                                    var ele = e.target.closest('tr');
+                                                    // Retrieve name and id info about the Media Browser Network Device the user has clicked on
+                                                    var profileId = ele.dataset.id;
+                                                    var profileName = ele.dataset.name;
+                                                    var profileApp = ele.dataset.app;
+                                                    openDialog(profileName, profileApp, profileId, view);
+                                                });
+                                        });
+                                    });
+                                });
                             Dashboard.processPluginConfigurationUpdateResult(result);
+
                         });
 
                     });
@@ -1010,31 +1041,31 @@ define(["loading", "dialogHelper", "emby-select", "emby-input"],
 
 
                 });
-               
+
             dlg.querySelector('.btnCloseDialog').addEventListener('click',
                 (event) => {
                     dialogHelper.close(dlg);
                 });
-            
-            
+
+
 
             dialogHelper.open(dlg);
 
-            
+
             Dashboard.hideLoadingMsg();
-           
 
 
-            
+
+
         }
 
-        return function (view) {
+        return function(view) {
 
             view.addEventListener('viewshow',
                 () => {
 
                     loadConfig(view);
-                    
+
                     view.querySelector('#veraDeviceIps').addEventListener('change',
                         () => {
                             ApiClient.getPluginConfiguration(pluginId).then(
@@ -1053,6 +1084,8 @@ define(["loading", "dialogHelper", "emby-select", "emby-input"],
                         (e) => {
                             e.preventDefault;
                             var deviceNameSelect = view.querySelector('#deviceName');
+                            var table = view.querySelector('.clientProfiles');
+                            table.innerHTML = "";
 
                             var deviceName = deviceNameSelect.options[deviceNameSelect.selectedIndex >= 0
                                 ? deviceNameSelect.selectedIndex
@@ -1060,113 +1093,74 @@ define(["loading", "dialogHelper", "emby-select", "emby-input"],
                             var deviceApp = deviceNameSelect.options[deviceNameSelect.selectedIndex >= 0
                                 ? deviceNameSelect.selectedIndex
                                 : 0].dataset.app;
+                            var deviceId = deviceNameSelect.options[deviceNameSelect.selectedIndex >= 0
+                                ? deviceNameSelect.selectedIndex
+                                : 0].dataset.id;
 
-                            ApiClient.getPluginConfiguration(pluginId).then((config) => {
+                            ApiClient.getPluginConfiguration(pluginId).then((config) => { 
+                                config.SavedDeviceProfiles.push({
+                                    Name: deviceName,
+                                    Id: deviceId,
+                                    AppName: deviceApp,
+                                    MoviesPlaybackStarted: "",
+                                    MoviesPlaybackStopped: "",
+                                    MoviesPlaybackPaused: "",
+                                    MoviesPlaybackUnPaused: "",
+                                    SeriesPlaybackStarted: "",
+                                    SeriesPlaybackStopped: "",
+                                    SeriesPlaybackPaused: "",
+                                    SeriesPlaybackUnPaused: "",
+                                    MusicPlaybackStarted: "",
+                                    MusicPlaybackStopped: "",
+                                    MusicPlaybackPaused: "",
+                                    MusicPlaybackUnPaused: "",
+                                    SessionEnded: "",
+                                    SessionStarted: "",
+                                    SceneSchedule: ""
+                                }); 
 
-                                ApiClient.getJSON(ApiClient.getUrl("EmbyDeviceList")).then(
-                                    (devices) => {
+                                config.SavedDeviceProfiles.forEach((profile) => {
+                                    ApiClient.getJSON(ApiClient.getUrl("EmbyDeviceSvg?AppName=" + profile.AppName + "&DeviceName=" + profile.Name)).then(
+                                        icon => {
+                                            table.innerHTML += getProfileTableHtml(profile, icon.svg);
 
-                                        devices.forEach((deviceProfile) => {
+                                            view.querySelectorAll('.clientProfile').forEach(profileButton => {
+                                                profileButton.addEventListener('click',
+                                                    (e) => {
+                                                        e.preventDefault();
 
-                                            if (deviceProfile.Name === deviceName &&
-                                                deviceProfile.AppName === deviceApp) {
+                                                        Dashboard.showLoadingMsg();
 
-                                                config.SavedDeviceProfiles.push({
-                                                    Name: deviceProfile.Name,
-                                                    Id: deviceProfile.Id,
-                                                    AppName: deviceProfile.AppName,
-                                                    MoviesPlaybackStarted: "",
-                                                    MoviesPlaybackStopped: "",
-                                                    MoviesPlaybackPaused: "",
-                                                    MoviesPlaybackUnPaused: "",
-                                                    SeriesPlaybackStarted: "",
-                                                    SeriesPlaybackStopped: "",
-                                                    SeriesPlaybackPaused: "",
-                                                    SeriesPlaybackUnPaused: "",
-                                                    MusicPlaybackStarted: "",
-                                                    MusicPlaybackStopped: "",
-                                                    MusicPlaybackPaused: "",
-                                                    MusicPlaybackUnPaused: "",
-                                                    SessionEnded: "",
-                                                    SessionStarted: "",
-                                                    SceneSchedule: ""
-                                                });
-
-
-                                                config = {
-                                                    SavedDeviceProfiles: config.SavedDeviceProfiles
-                                                };
-
-                                                ApiClient.updatePluginConfiguration(pluginId, config).then(
-                                                    (result) => {
-                                                        Dashboard.processPluginConfigurationUpdateResult(
-                                                            result);
+                                                        var ele = e.target.closest('tr');
+                                                        var profileId = ele.dataset.id;
+                                                        var profileName = ele.dataset.name;
+                                                        var profileApp = ele.dataset.app;
+                                                        openDialog(profileName, profileApp, profileId, view);
                                                     });
+                                            });
 
-                                                view.querySelector('#clientProfiles').innerHTML += (
-                                                    getClientHtml(deviceProfile));
-                                            }
+                                            var delButtons = view.querySelectorAll('.btnDeleteProfile');
+                                            delButtons.forEach((button) => {
+                                                button.addEventListener('click',
+                                                    (e) => {
+                                                        removeClientProfile(e, view);
+                                                    });
+                                            });
                                         });
-                                    });
+                                }); 
+
+                                ApiClient.updatePluginConfiguration(pluginId, config).then(
+                                    (result) => {
+                                        Dashboard.processPluginConfigurationUpdateResult(result);
+                                    }); 
                             });
                         });
 
-                    view.querySelector('#clientProfiles').addEventListener('click',
-                        (e) => {
-
-                            if (e.target.classList.contains('btnDeleteProfile')) {
-
-                                // the device name the user wants to remove from configuration
-                                var name = e.target.closest('div').dataset.name;
-                                var id = e.target.closest('div').dataset.id;
-
-                                // Our list of devices to write to the Configuration
-                                var devices = [];
-                                // Our list of devices that already exist - with the exception of the device which was just removed from the list
-                                ApiClient.getPluginConfiguration(pluginId).then((config) => {
-                                    config.SavedDeviceProfiles.forEach((c) => {
-                                        if (c.Name !== name && c.Id !== id) {
-                                            devices.push(c);
-                                        }
-                                    });
-                                    config.SavedDeviceProfiles = devices;
-                                    ApiClient.updatePluginConfiguration(pluginId, config).then(
-                                        (result) => {
-                                            Dashboard.hideLoadingMsg();
-                                            Dashboard.processPluginConfigurationUpdateResult(result);
-                                        });
-                                });
-
-                                //e.target.closest('div').remove();
-                                e.target.closest('div.clientButtonContainer').remove();
-                                return false;
-
-                            }
-
-                            
-                            if (e.target.closest('div > .clientProfile')) {
-
-                                Dashboard.showLoadingMsg();
-
-                                var ele = e.target.closest('div > .clientProfile');
-                                // Retrieve name and id info about the Media Browser Network Device the user has clicked on
-                                var profileId = ele.dataset.id;
-                                var profileName = ele.dataset.name;
-                                var profileApp = ele.dataset.app;
-                                openDialog(profileName, profileApp, profileId, view);
-                               
-                            }
-                            return false;
-                        });
-
-
-
                 });
-        }
-
+        }  
 
     });
-        
-           
+
+
 
 

@@ -28,7 +28,7 @@ namespace VeraHomeAutomation
         
         private static ITVSeriesManager TvSeriesManager { get; set; }
 
-
+        
 
         public VeraHomeAutomationServerEntryPoint(IDeviceManager dM, ISessionManager sM, IJsonSerializer jSon, IHttpClient http, ITVSeriesManager tvMan, IUserManager userMan)
         {

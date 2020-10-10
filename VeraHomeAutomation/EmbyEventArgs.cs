@@ -26,8 +26,7 @@ namespace VeraHomeAutomation
         //private static string FormatJson => "&output_format=json";
         public static void EnableEvents(ISessionManager ses)
         {
-
-            //TODO: when the user changes the vera device choice in the configuration we need to change the VeraApi.VeraDeviceInfo
+            
             SessionManager = ses;
             SessionManager.PlaybackStart += PlaybackStarted;
             SessionManager.PlaybackStopped += PlaybackStopped;
@@ -324,8 +323,8 @@ namespace VeraHomeAutomation
 
         private static bool ScheduleAllowScene(SavedDevice device, PluginConfiguration config)
         {
-            if (string.IsNullOrEmpty(device.SceneSchedule)) return true;            
-            return (DateTime.Now.TimeOfDay >= TimeSpan.Parse(device.SceneSchedule + ":00") && DateTime.Now.TimeOfDay <= TimeSpan.Parse("4:00:00"));
+            if (string.IsNullOrEmpty(device.SceneSchedule)) return true;
+            return (DateTime.Now.TimeOfDay >= TimeSpan.Parse(device.SceneSchedule + ":00") || DateTime.Now.TimeOfDay <= TimeSpan.Parse("6:00:00"));
         }
 
         private static void RunScene(string sceneName, PluginConfiguration config)

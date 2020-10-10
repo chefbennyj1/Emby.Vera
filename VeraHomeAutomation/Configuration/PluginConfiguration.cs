@@ -7,13 +7,7 @@ namespace VeraHomeAutomation.Configuration
     public class PluginConfiguration : BasePluginConfiguration
     {
         
-        public Location Location
-        {
-            get => MLocation;
-            set => MLocation = value;
-        }
-        private static Location MLocation       { get; set; }
-
+       
         public bool UserVeraIpOverride
         {
             get => MUserVeraIpOverride;
@@ -44,13 +38,7 @@ namespace VeraHomeAutomation.Configuration
        
     }
 
-    public class Location
-    {
-        public string Name                      { get; set; }
-        public double Latitude                  { get; set; }
-        public double Longitude                 { get; set; }
-    }
-
+    
     public class Device
     {
         public string Name                      { get; set; }
