@@ -1,10 +1,7 @@
-﻿using System;
-using MediaBrowser.Controller.Devices;
-using MediaBrowser.Model.Devices;
+﻿using MediaBrowser.Controller.Devices;
 using MediaBrowser.Model.Serialization;
 using MediaBrowser.Model.Services;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using MediaBrowser.Controller.LiveTv;
@@ -120,7 +117,7 @@ namespace VeraHomeAutomation
             try
             {
                 
-                return JsonSerializer.SerializeToString(VeraApi.DeviceReadyAsync(VeraApi.VeraDeviceInfo.InternalIp).Result) ;
+                return JsonSerializer.SerializeToString(VeraApi.DeviceReadyAsync(VeraApi.VeraDeviceInfo.InternalIp).Result);
             }
             catch
             {
